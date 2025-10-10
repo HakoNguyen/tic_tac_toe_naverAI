@@ -1,46 +1,112 @@
-# Getting Started with Create React App
+# Tic Tac Toe AI (React + TypeScript)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Một trò chơi TicTacToe có đối thủ AI với 2 mức độ: Dễ (ngẫu nhiên) và Khó (minimax có alpha-beta). Dự án có theo dõi điểm số, streak và thống kê hiệu suất AI.
 
-## Available Scripts
+## 🚀 Cài đặt & chạy
 
-In the project directory, you can run:
+```bash
+# Cài đặt phụ thuộc (chạy trong thư mục tic-tac-toe-ai)
+npm install
 
-### `npm start`
+# Chạy dev server
+npm start
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+# Ứng dụng tại http://localhost:3000
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## 🎮 Cách chơi
 
-### `npm test`
+- Bạn là "X", AI là "O".
+- Click vào ô trống để đánh dấu.
+- Chọn mức độ AI: Easy hoặc Hard (có thể đổi bất kỳ lúc nào).
+- Nhấn "New Game" để bắt đầu ván mới.
+- Hệ thống tự động phát hiện thắng/thua/hòa và highlight đường thắng.
+- Thống kê (Wins/Losses/Draws, Streak) được lưu trong `localStorage`.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🧠 Mức độ AI
 
-### `npm run build`
+### Easy
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Chọn nước đi ngẫu nhiên trong các ô còn trống.
+- Cố ý yếu, dễ bị người chơi đánh bại.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Hard
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Sử dụng thuật toán minimax với alpha-beta pruning.
+- Không thể bị đánh bại (tệ nhất là hòa).
+- Console sẽ log:
+  - Điểm số (score) của từng nước đi ứng viên
+  - Số lượng trạng thái đã đánh giá (positions evaluated)
+  - Thời gian suy nghĩ (ms)
 
-### `npm run eject`
+Mẹo: Mở DevTools Console để theo dõi quá trình AI đánh giá.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 📁 Cấu trúc chính
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+src/
+├── App.tsx                 # Component chính, quản lý state và luồng game
+├── components/
+│   ├── Board.tsx           # Vẽ bàn cờ 3x3
+│   ├── Square.tsx          # Một ô cờ (inline styles)
+│   └── GameInfo.tsx        # Điều khiển, thống kê, hiệu suất (inline styles)
+├── utils/
+│   ├── gameLogic.ts        # Kiểm tra thắng/hòa và helper
+│   └── ai.ts               # AI (random + minimax)
+└── index.css               # Chứa keyframes pulse cho hiệu ứng thắng
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## 🧩 Tổng quan game logic
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- `checkWinner(board)`: trả về người thắng (`"X" | "O" | null`) và các ô thắng.
+- `isBoardFull(board)`: hết ô trống hay chưa.
+- `isGameOver(board)`: kết thúc do thắng hoặc hòa.
+- `getAvailableMoves(board)`: danh sách index các ô trống.
 
-## Learn More
+Các hàm này giúp tách biệt logic khỏi UI.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## ♟️ Giải thích minimax (Hard)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+File: `src/utils/ai.ts`
+
+```ts
+// getMinimaxMove(board, player): trả về nước đi tốt nhất cho AI "O"
+// Dùng minimax(board, depth, isMaximizing, alpha, beta)
+// Chấm điểm (góc nhìn AI):
+// - AI thắng ("O"): 10 - depth    // ưu tiên thắng nhanh
+// - Người thắng ("X"): depth - 10 // đẩy thua càng chậm càng tốt
+// - Hòa: 0
+// Alpha-beta pruning cắt nhánh khi beta <= alpha
+```
+
+Ý chính:
+
+- Trạng thái kết thúc trả về điểm tĩnh (win/loss/draw).
+- AI (maximizer) đánh "O"; Người (minimizer) đánh "X".
+- Tham số `depth` ưu tiên thắng nhanh/thua chậm.
+- Alpha-beta giúp giảm số trạng thái cần duyệt.
+
+## 📊 Thống kê hiệu suất
+
+- Số trạng thái đã đánh giá (Hard)
+- Thời gian AI suy nghĩ (ms)
+- Hiển thị trong panel thông tin; chi tiết hơn trong Console.
+
+## 💾 Lưu trữ
+
+- Khóa `localStorage`: `ticTacToeStats`
+- Lưu: wins, losses, draws, currentStreak, bestStreak
+
+## 🧪 Kiểm thử AI
+
+- Thử các chiến thuật phổ biến (đi giữa, đi góc trước). Ở Hard, bạn không thể buộc AI thua.
+- Dùng Console logs để hiểu vì sao AI chọn nước đi.
+
+## 🛠 Công nghệ
+
+- React 18 + TypeScript
+- Inline styles (không dùng CSS Modules)
+
+## 📜 License
+
+MIT
