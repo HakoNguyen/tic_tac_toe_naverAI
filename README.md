@@ -5,7 +5,7 @@ Một trò chơi TicTacToe có đối thủ AI với 2 mức độ: Dễ (ngẫu
 ## 🚀 Cài đặt & chạy
 
 ```bash
-# Cài đặt phụ thuộc (chạy trong thư mục tic-tac-toe-ai)
+# Cài đặt phụ thuộc 
 npm install
 
 # Chạy dev server
