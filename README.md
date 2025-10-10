@@ -107,6 +107,4 @@ File: `src/utils/ai.ts`
 - React 18 + TypeScript
 - Inline styles (không dùng CSS Modules)
 
-## 📜 License
 
-MIT
