@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Board from "./components/Board";
 import GameInfo from "./components/GameInfo";
+import MultiplayerGame from "./components/MultiplayerGame";
 import {
   createEmptyBoard,
   checkWinner,
   isGameOver,
   getGameStatus,
-  getOtherPlayer,
   makeMove,
   isValidMove,
   Board as BoardType,
@@ -23,11 +23,13 @@ interface GameStats {
 }
 
 const App: React.FC = () => {
-  // Game state
+  // Game mode state
+  const [gameMode, setGameMode] = useState<'single' | 'multiplayer'>('single');
+  
+  // Single player game state
   const [board, setBoard] = useState<BoardType>(createEmptyBoard());
   const [currentPlayer, setCurrentPlayer] = useState<Player>("X");
   const [gameOver, setGameOver] = useState(false);
-  const [winner, setWinner] = useState<Player>(null);
   const [winningSquares, setWinningSquares] = useState<number[] | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [aiThinkingTime, setAiThinkingTime] = useState<number | undefined>();
@@ -69,7 +71,6 @@ const App: React.FC = () => {
 
       if (gameWinner || isGameOver(newBoard)) {
         setGameOver(true);
-        setWinner(gameWinner);
         setWinningSquares(gameWinningSquares);
 
         // Update statistics
@@ -120,7 +121,6 @@ const App: React.FC = () => {
 
           if (gameWinner || isGameOver(newBoard)) {
             setGameOver(true);
-            setWinner(gameWinner);
             setWinningSquares(gameWinningSquares);
 
             // Update statistics
@@ -152,7 +152,6 @@ const App: React.FC = () => {
     setBoard(createEmptyBoard());
     setCurrentPlayer("X");
     setGameOver(false);
-    setWinner(null);
     setWinningSquares(null);
     setAiThinkingTime(undefined);
     setPositionsEvaluated(undefined);
@@ -167,6 +166,21 @@ const App: React.FC = () => {
     [handleNewGame]
   );
 
+  // Game mode navigation
+  const handleSwitchToMultiplayer = useCallback(() => {
+    setGameMode('multiplayer');
+  }, []);
+
+  const handleSwitchToSingle = useCallback(() => {
+    setGameMode('single');
+  }, []);
+
+  // Render multiplayer mode
+  if (gameMode === 'multiplayer') {
+    return <MultiplayerGame onBack={handleSwitchToSingle} />;
+  }
+
+  // Single player mode
   const status = getGameStatus(board, currentPlayer || "X");
 
   const appStyle: React.CSSProperties = {
@@ -211,13 +225,29 @@ const App: React.FC = () => {
     gap: "30px",
   };
 
+  const multiplayerButtonStyle: React.CSSProperties = {
+    padding: "12px 24px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    backgroundColor: "#4CAF50",
+    color: "white",
+    marginBottom: "20px",
+  };
+
   return (
     <div style={appStyle}>
       <header style={headerStyle}>
         <h1 style={titleStyle}>Tic Tac Toe AI</h1>
         <p style={subtitleStyle}>
-         
+          Play against AI or challenge friends in multiplayer mode
         </p>
+        <button style={multiplayerButtonStyle} onClick={handleSwitchToMultiplayer}>
+          🎮 Play Multiplayer Odd/Even Tic-Tac-Toe
+        </button>
       </header>
 
       <main style={gameContainerStyle}>
